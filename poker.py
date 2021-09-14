@@ -1,5 +1,7 @@
 from random import randrange
-
+from preFlopChecker import preFlopChecker
+from checkAndScore import scoreCards
+from timeit import default_timer as timer
 
 suites = ["D", "H", "C", "S"]
 cards = [i for i in range(2,15)]
@@ -38,138 +40,108 @@ def dealFlop():
 def dealRiver():
     river = dealCards(1)
     cardsOnTable.extend(river)
-    return dealCards(1)
+    return river
 
 def dealTurn():
     turn = dealCards(1)
     cardsOnTable.extend(turn)
     return dealCards(1)
 
-def preFlopChecker(cards):
-    typeOfCard = {"pair": [], "highCard": []}
-    cardNumber = []
-    cardDict = {}
-    
-    for card in cards:
-        cardNumber.append([int(i[:-1]) for i in card])
-        cardDict[card] = [i[-1] for i in card]
+# def simulateRiverAndTurn():
+#     possibleRiverAndTurn = []
+#     for turn in range(len(bookOfCards) - 1):
+#         for river in range(turn + 1, len(bookOfCards)):
+#             possibleRiverAndTurn.append([bookOfCards[river], bookOfCards[turn]])
+#     return possibleRiverAndTurn
 
-    for card in cardNumber:
-        if len(set(card)) == 1:
-            typeOfCard["pair"].append(card)
-        else:
-            card.sort()
-            typeOfCard["highCard"].append(card)
-        
-    if len(typeOfCard["pair"]) == len(cards):
-        typeOfCard["pair"].sort()
-        higherPair = typeOfCard["pair"][0]
-        lowerPair = typeOfCard["pair"][1]
-        if higherPair == lowerPair:
-            return {"50%": typeOfCard["pair"][1], "50%": typeOfCard["pair"][0]}
-        return ({"80.3%": higherPair, "19.7%": lowerPair})
+card = dealHoleCards(2)
+print(card)
 
-    elif len(typeOfCard["pair"]) == 1:
-        if typeOfCard["pair"][0][0] > typeOfCard["highCard"][0][1]: 
-            return {"82.7%": typeOfCard["pair"][0], "17.3%": typeOfCard["highCard"]}
-        elif typeOfCard["pair"][0][0] == typeOfCard["highCard"][0][0]: 
-            return {"65.5%": typeOfCard["pair"][0], "34.5%": typeOfCard["highCard"]}
-        elif typeOfCard["pair"][0][0] == typeOfCard["highCard"][0][1]: 
-            return {"85.5%": typeOfCard["pair"][0], "14.5%": typeOfCard["highCard"]}
-        elif typeOfCard["pair"][0][0] < typeOfCard["highCard"][0][0]: 
-            return {"55.1%": typeOfCard["pair"][0], "44.9%": typeOfCard["highCard"]}
-        elif typeOfCard["highCard"][0][1] > typeOfCard["pair"][0][0] > typeOfCard["highCard"][0][0]: 
-            return {"71.4%": typeOfCard["pair"][0], "28.6%": typeOfCard["highCard"]}
-
-    else: 
-        typeOfCard["highCard"].sort()
-        if typeOfCard["highCard"][0][1] < typeOfCard["highCard"][1][0]:
-            return {"62.9%": typeOfCard["highCard"][1], "37.1%": typeOfCard["highCard"]}
-        elif typeOfCard["highCard"][0][0] < typeOfCard["highCard"][1][0] and typeOfCard["highCard"][1][1] < typeOfCard["highCard"][0][1]:
-            return {"55.9%": typeOfCard["highCard"][0], "44.1%": typeOfCard["highCard"][1]}
-        elif typeOfCard["highCard"][0][0] < typeOfCard["highCard"][1][0] and typeOfCard["highCard"][1][1] > typeOfCard["highCard"][0][1]:
-            return {"63.3%": typeOfCard["highCard"][1], "36.7%": typeOfCard["highCard"][0]}
-        elif typeOfCard["highCard"][0][0] < typeOfCard["highCard"][1][0] and typeOfCard["highCard"][1][0] == typeOfCard["highCard"][0][1] and typeOfCard["highCard"][1][1] > typeOfCard["highCard"][0][1]:
-            return {"73.3%": typeOfCard["highCard"][1], "26.7%": typeOfCard["highCard"][0]}
-        elif typeOfCard["highCard"][0][1] == typeOfCard["highCard"][1][1] and typeOfCard["highCard"][0][0] < typeOfCard["highCard"][1][0]:
-            return {"71.1%": typeOfCard["highCard"][1], "28.9%": typeOfCard["highCard"][0]}    
-        elif typeOfCard["highCard"][0][0] == typeOfCard["highCard"][1][0] and typeOfCard["highCard"][1][1] > typeOfCard["highCard"][0][1]:
-            return {"62.3%": typeOfCard["highCard"][1], "28.9%": typeOfCard["highCard"][0]}
-        else:
-            return {"50%": typeOfCard["highCard"][1], "50%": typeOfCard["highCard"][0]}
-
-def players():
-    def simulateRiverAndTurn():
-        possibleRiverAndTurn = []
-        for turn in range(len(bookOfCards) - 1):
-            for river in range(len(bookOfCards)):
-                possibleRiverAndTurn.append([bookOfCards[river], bookOfCards[turn]])
-        return possibleRiverAndTurn
-    card = dealHoleCards(2)
+def simulateRiverAndTurn():
+    dealFlop()
     player1Card, player2Card = card[0], card[1]
-    print(player1Card, player2Card)
-    print(cardsOnTable)
     player1Card.extend(cardsOnTable), player2Card.extend(cardsOnTable)
-    possibleRiverAndTurn = simulateRiverAndTurn()
-    player1AllPossibleCards = []
-    player2AllPossibleCards = []
+    possibleRiverAndTurn = []
+    for turn in range(len(bookOfCards) - 1):
+        for river in range(turn + 1, len(bookOfCards)):
+            possibleRiverAndTurn.append([bookOfCards[river], bookOfCards[turn]])
+    playerAllPossibleCards = []
     for possiblePostFlop in possibleRiverAndTurn:
-        player1AllPossibleCards.append(player1Card + possiblePostFlop)
-        player2AllPossibleCards.append(player2Card + possiblePostFlop)
-    # player1CardNums, player2CardNums = [i[:-1] for i in player1AllCard], [i[-1] for i in player2AllCard]
-    return player1AllPossibleCards
+        playerAllPossibleCards.append([player1Card + possiblePostFlop, player2Card + possiblePostFlop])
+    return playerAllPossibleCards
 
-dealFlop()
-print(players())
+def simulateRiver():
+    river = dealRiver()
+    player1Card, player2Card = card[0], card[1]
+    player1Card.extend(cardsOnTable), player2Card.extend(cardsOnTable)
+    playerAllPossibleCards = []
+    for turn in bookOfCards:
+        playerAllPossibleCards.append([player1Card + [turn], player2Card + [turn]])
+    return playerAllPossibleCards
 
-def check_four_of_a_kind(handNum):
-    for i in handNum:
-        if handNum.count(i) == 4:
-            four = i
-        elif numbers.count(i) == 1:
-            card = i
-    score = 105 + four + card/100
-    return score
 
-def check_full_house(hand,letters,numbers,rnum,rlet):
-    for i in numbers:
-        if numbers.count(i) == 3:
-            full = i
-        elif numbers.count(i) == 2:
-            p = i
-    score = 90 + full + p/100  
-    return score
+def checkOddsCalc(simulationStage, numOfIterations):
+    simulatedCards = simulationStage()
+    p1win, p2win = 0, 0
+    tie = 0
+    for cardSets in simulatedCards:
+        p1score, p2score, cards1, cards2 = scoreCards(cardSets[0], cardSets[1])
+        if p1score == 1 or p2score == 1:
+            p1win += p1score
+            p2win += p2score
+        else:
+            tie += 1
+    p1WinOdds = str(round((p1win/numOfIterations)*100, 2)) + "%"
+    p2WinOdds = str(round((p2win/numOfIterations)*100, 2)) + "%"
+    tieOdds = str(round((tie/numOfIterations)*100, 2)) + "%"
+    return(p1WinOdds, p2WinOdds, tieOdds)
 
-def check_three_of_a_kind(hand,letters,numbers,rnum,rlet):
-    cards = []
-    for i in numbers:
-        if numbers.count(i) == 3:
-            three = i
-        else: 
-            cards.append(i)
-    score = 45 + three + max(cards) + min(cards)/1000
-    return score
+def postFlopOddsCalc():
+    return checkOddsCalc(simulateRiverAndTurn, 990)
+    # simulatedCards = simulateRiverAndTurn()
+    # p1win, p2win = 0, 0
+    # tie = 0
+    # for cardSets in simulatedCards:
+    #     p1score, p2score, cards1, cards2 = scoreCards(cardSets[0], cardSets[1])
+    #     if p1score == 1 or p2score == 1:
+    #         p1win += p1score
+    #         p2win += p2score
+    #     else:
+    #         tie += 1
+    # p1WinOdds = str(round((p1win/990)*100, 2)) + "%"
+    # p2WinOdds = str(round((p2win/990)*100, 2)) + "%"
+    # tieOdds = str(round((tie/990)*100, 2)) + "%"
+    # return(p1WinOdds, p2WinOdds, tieOdds)
 
-def check_two_pair(hand,letters,numbers,rnum,rlet):
-    pairs = []
-    cards = []
-    for i in numbers:
-        if numbers.count(i) == 2:
-            pairs.append(i)
-        elif numbers.count(i) == 1:
-            cards.append(i)
-            cards = sorted(cards,reverse=True)
-    score = 30 + max(pairs) + min(pairs)/100 + cards[0]/1000
-    return score
+print(postFlopOddsCalc())
 
-def check_pair(hand,letters,numbers,rnum,rlet):    
-    pair = []
-    cards  = []
-    for i in numbers:
-        if numbers.count(i) == 2:
-            pair.append(i)
-        elif numbers.count(i) == 1:    
-            cards.append(i)
-            cards = sorted(cards,reverse=True)
-    score = 15 + pair[0] + cards[0]/100 + cards[1]/1000 + cards[2]/10000
-    return score
+def checkRiverOddsCalc():
+    return checkOddsCalc(simulateRiver, 44)
+    # simulatedCards = simulateRiver()
+    # p1win, p2win = 0, 0
+    # tie = 0
+    # for cardSets in simulatedCards:
+    #     p1score, p2score, cards1, cards2 = scoreCards(cardSets[0], cardSets[1])
+    #     if p1score == 1 or p2score == 1:
+    #         p1win += p1score
+    #         p2win += p2score
+    #     else:
+    #         tie += 1
+    # p1WinOdds = str(round((p1win/44)*100, 2)) + "%"
+    # p2WinOdds = str(round((p2win/44)*100, 2)) + "%"
+    # tieOdds = str(round((tie/44)*100, 2)) + "%"
+    # return(p1WinOdds, p2WinOdds, tieOdds)
+print(checkRiverOddsCalc())
+
+def finalScore():
+    turn = dealTurn()
+    player1Card, player2Card = card[0], card[1]
+    player1Card += cardsOnTable
+    player2Card += cardsOnTable
+    p1, p2, cards1, cards2 = scoreCards(player1Card, player2Card)
+    if p1 > p2:
+        return "Player 1 Wins"
+    elif p2 > p1:
+        return "Player 2 Wins"
+    else:
+        "It's a draw" 
