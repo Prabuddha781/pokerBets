@@ -1,5 +1,4 @@
 from random import randrange
-from preFlopChecker import preFlopChecker
 from checkAndScore import scoreCards
 from timeit import default_timer as timer
 
@@ -47,19 +46,8 @@ def dealTurn():
     cardsOnTable.extend(turn)
     return dealCards(1)
 
-# def simulateRiverAndTurn():
-#     possibleRiverAndTurn = []
-#     for turn in range(len(bookOfCards) - 1):
-#         for river in range(turn + 1, len(bookOfCards)):
-#             possibleRiverAndTurn.append([bookOfCards[river], bookOfCards[turn]])
-#     return possibleRiverAndTurn
-
-card = dealHoleCards(2)
-print(card)
-
 def simulateRiverAndTurn():
-    dealFlop()
-    player1Card, player2Card = card[0], card[1]
+    player1Card, player2Card = hole_cards[0], hole_cards[1]
     player1Card.extend(cardsOnTable), player2Card.extend(cardsOnTable)
     possibleRiverAndTurn = []
     for turn in range(len(bookOfCards) - 1):
@@ -71,8 +59,7 @@ def simulateRiverAndTurn():
     return playerAllPossibleCards
 
 def simulateRiver():
-    river = dealRiver()
-    player1Card, player2Card = card[0], card[1]
+    player1Card, player2Card = hole_cards[0], hole_cards[1]
     player1Card.extend(cardsOnTable), player2Card.extend(cardsOnTable)
     playerAllPossibleCards = []
     for turn in bookOfCards:
@@ -91,51 +78,19 @@ def checkOddsCalc(simulationStage, numOfIterations):
             p2win += p2score
         else:
             tie += 1
-    p1WinOdds = str(round((p1win/numOfIterations)*100, 2)) + "%"
-    p2WinOdds = str(round((p2win/numOfIterations)*100, 2)) + "%"
-    tieOdds = str(round((tie/numOfIterations)*100, 2)) + "%"
+    p1WinOdds = round((p1win/numOfIterations)*100, 2)
+    p2WinOdds = round((p2win/numOfIterations)*100, 2)
+    tieOdds = round((tie/numOfIterations)*100, 2)
     return(p1WinOdds, p2WinOdds, tieOdds)
 
 def postFlopOddsCalc():
     return checkOddsCalc(simulateRiverAndTurn, 990)
-    # simulatedCards = simulateRiverAndTurn()
-    # p1win, p2win = 0, 0
-    # tie = 0
-    # for cardSets in simulatedCards:
-    #     p1score, p2score, cards1, cards2 = scoreCards(cardSets[0], cardSets[1])
-    #     if p1score == 1 or p2score == 1:
-    #         p1win += p1score
-    #         p2win += p2score
-    #     else:
-    #         tie += 1
-    # p1WinOdds = str(round((p1win/990)*100, 2)) + "%"
-    # p2WinOdds = str(round((p2win/990)*100, 2)) + "%"
-    # tieOdds = str(round((tie/990)*100, 2)) + "%"
-    # return(p1WinOdds, p2WinOdds, tieOdds)
-
-print(postFlopOddsCalc())
 
 def checkRiverOddsCalc():
     return checkOddsCalc(simulateRiver, 44)
-    # simulatedCards = simulateRiver()
-    # p1win, p2win = 0, 0
-    # tie = 0
-    # for cardSets in simulatedCards:
-    #     p1score, p2score, cards1, cards2 = scoreCards(cardSets[0], cardSets[1])
-    #     if p1score == 1 or p2score == 1:
-    #         p1win += p1score
-    #         p2win += p2score
-    #     else:
-    #         tie += 1
-    # p1WinOdds = str(round((p1win/44)*100, 2)) + "%"
-    # p2WinOdds = str(round((p2win/44)*100, 2)) + "%"
-    # tieOdds = str(round((tie/44)*100, 2)) + "%"
-    # return(p1WinOdds, p2WinOdds, tieOdds)
-print(checkRiverOddsCalc())
 
 def finalScore():
-    turn = dealTurn()
-    player1Card, player2Card = card[0], card[1]
+    player1Card, player2Card = hole_cards[0], hole_cards[1]
     player1Card += cardsOnTable
     player2Card += cardsOnTable
     p1, p2, cards1, cards2 = scoreCards(player1Card, player2Card)
