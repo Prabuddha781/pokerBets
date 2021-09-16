@@ -48,29 +48,66 @@ class PlayerBalance():
 
 def deal_next_round():
     if len(bookOfCards) == 52:
+        global odds_p1
+        global odds_p2
+        global odds_tie
         global hole_cards
         hole_cards = dealHoleCards(2)
         print(hole_cards)
         odds_p1, odds_p2 = preFlopHelper(hole_cards)
-        display_odds(odds_p1, odds_p2, odds_tie=0)
+        odds_tie = 0
+        display_odds(odds_p1, odds_p2, odds_tie)
         add_photos()
     elif len(bookOfCards) == 48:
         dealFlop()
-        odds_p1, odds_p2, odds_tie = postFlopOddsCalc()
+        odds_p1, odds_p2, odds_tie = postFlopOddsCalc(hole_cards)
+        print(odds_p1, odds_p2, odds_tie)
         display_odds(odds_p1, odds_p2, odds_tie)
     elif len(bookOfCards) == 45:
         dealRiver()
+        odds_p1, odds_p2, odds_tie = checkRiverOddsCalc()
+        display_odds(odds_p1, odds_p2, odds_tie)
     elif len(bookOfCards) == 44:
         turn = dealTurn() 
+        result = finalScore()
+        display_final_score(result)
+        global net_win 
+        net_win = 0
+        if result == "Player 1 Wins":
+            amount_bet_on_p1 = player.amount_on_p1
+            for i in player.amount_on_p1:
+                net_win += i[0] * (1+i[1])
+        elif result == "Player 2 Wins":
+            amount_bet_on_p2 = player.amount_on_p2
+            for i in player.amount_on_p2:
+                net_win += i[0] * (1+i[1])
+        else:
+            amount_bet_on_tie = player.amount_on_tie
+            for i in player.amount_on_tie:
+                net_win += i[0] * (1+i[1])
+        print(player.amount_on_p1)
+        print(net_win)
+        print(player.amount_on_p2)
+        print(player.amount_on_tie)
     add_post_flop_photos()
 
 def display_odds(odds_p1, odds_p2, odds_tie=0):
-    odds_p1_win = tk.Label(mainWindow, text="P1 win = {}%".format(str(odds_p1*100)), bg="#9a9898", fg="#222dca")
+    global odds_p1_win
+    global odds_p2_win
+    global odds_p1_p2_tie
+    odds_p1_win = tk.Label(mainWindow, text="P1 win = {}%".format(str(round(odds_p1*100, 2))), bg="#9a9898", fg="#222dca")
     odds_p1_win.grid(row=4, column=2, columnspan=2)
-    odds_p2_win = tk.Label(mainWindow, text="P2 win = {}%".format(str(odds_p2*100)), bg="#9a9898", fg="#222dca")
+    odds_p2_win = tk.Label(mainWindow, text="P2 win = {}%".format(str(round(odds_p2*100, 2))), bg="#9a9898", fg="#222dca")
     odds_p2_win.grid(row=4, column=8, columnspan=2)
-    odds_p1_p2_tie = tk.Label(mainWindow, text="Odds of tie = {}%".format(str(odds_tie*100)), justify=CENTER, bg="#9a9898", fg="#222dca")
+    odds_p1_p2_tie = tk.Label(mainWindow, text="Odds of tie = {}%".format(str(round(odds_tie*100,2))), justify=CENTER, bg="#9a9898", fg="#222dca")
     odds_p1_p2_tie.grid(row=4, column=5, columnspan=2)
+
+def display_final_score(result):
+    final_score = tk.Label(mainWindow, text="{}".format(result), bg="#9a9898", fg="#222dca", font=("Helvetica", 25))
+    final_score.grid(row=3, column=5, columnspan=2)
+    odds_p1_win.grid_forget()
+    odds_p2_win.grid_forget()
+    odds_p1_p2_tie.grid_forget()
 
 list_of_rounds = ['Pre-Hole', 'Pre-Flop', 'Post-Flop', 'Before Turn', 'Game-Finished:Betting Not Allowed']
 betting_round_dummy = 0

@@ -31,14 +31,14 @@ def preFlopChecker(cards):
         elif typeOfCard["pair"][0][0] == typeOfCard["highCard"][0][1]: 
             return {0.855: typeOfCard["pair"][0], 0.145: typeOfCard["highCard"][0]}
         elif typeOfCard["pair"][0][0] < typeOfCard["highCard"][0][0]: 
-            return {0.551: typeOfCard["pair"][0], 0.449: typeOfCard["highCard"]}
+            return {0.551: typeOfCard["pair"][0], 0.449: typeOfCard["highCard"][0]}
         elif typeOfCard["highCard"][0][1] > typeOfCard["pair"][0][0] > typeOfCard["highCard"][0][0]: 
             return {0.714: typeOfCard["pair"][0], 0.286: typeOfCard["highCard"][0]}
 
     else: 
         typeOfCard["highCard"].sort()
         if typeOfCard["highCard"][0][1] < typeOfCard["highCard"][1][0]:
-            return {0.629: typeOfCard["highCard"][1], 0.371: typeOfCard["highCard"]}
+            return {0.629: typeOfCard["highCard"][1], 0.371: typeOfCard["highCard"][0]}
         elif typeOfCard["highCard"][0][0] < typeOfCard["highCard"][1][0] and typeOfCard["highCard"][1][1] < typeOfCard["highCard"][0][1]:
             return {0.559: typeOfCard["highCard"][0], 0.441: typeOfCard["highCard"][1]}
         elif typeOfCard["highCard"][0][0] < typeOfCard["highCard"][1][0] and typeOfCard["highCard"][1][1] > typeOfCard["highCard"][0][1]:
@@ -65,3 +65,6 @@ def preFlopHelper(cards):
         return resKeys[0], resKeys[1]
     if res[resKeys[1]] in p1_cards:
         return resKeys[1], resKeys[0]
+
+if __name__ == "__main__":
+    print(preFlopHelper([['6S', '9S'], ['13H', '14C']]))

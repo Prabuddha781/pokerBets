@@ -29,7 +29,7 @@ def checkFullHouse(card):
                     for j in listCard:
                         if card.count(j) >= 2:
                             score += i + j/100
-                        return score
+                    return score
     return 0
 
 def checkFlush(card, suites):
@@ -52,11 +52,14 @@ def checkStraight(card):
     card = list(set(card))
     card.sort(reverse=True)
     for i in range(len(card)-4):
-        if card[i] == card[i+4] + 4:
-            return 600 + card[i]
+        try:
+            if card[i] == card[i+4] + 4:
+                return 600 + card[i]
+        except IndexError:
+            return 0
     try:
         if 14 in card:
-            if card[4] == 5:
+            if card[-4] == 5:
                 return 601  
     except IndexError:
         return 0
@@ -81,22 +84,33 @@ def checkThreeOfAKind(card):
 
 def checkTwoPair(card):
     score = 300
-    setCard = set(card)
-    if len(setCard) == 4 or len(setCard) == 5:
+    card_no_dup = list(set(card))
+    card_no_dup.sort(reverse=True)
+    setCard2 = set(card)
+    if len(card_no_dup) == 4 or len(card_no_dup) == 5:
         pairs = []
-        for i in setCard:
-            if card.count(i) == 2:
-                pairs.append(i)
+        for i in card_no_dup:
+            if len(pairs) < 2:
+                if card.count(i) == 2:
+                    pairs.append(i)
+                    setCard2.remove(i)
+            else: 
+                break
         pairs.sort(reverse=True)
-        score += pairs[0] + pairs[1]/100  
+        score += pairs[0] + pairs[1]/100  + max(setCard2)/10000
         return score
     return 0
 
 def checkPair(card):
+    score = 200
     if len(set(card)) == 6:
         for i in card:
             if card.count(i) == 2:
-                return 200 + i
+               score += i
+               card.remove(i)
+        card.sort(reverse=True)
+        score += card[0]/15 + card[1]/225 + card[2]/3375 + card[3]/50625
+        return score
     return 0
 
 def checkHighCard(card):
@@ -158,7 +172,8 @@ def scoreCards(cards1, cards2):
     elif p2score > p1score:
         return 0, 1, cards1, cards2
     else:
+        print("not found", cards1, cards2)
         return 0, 0, cards1, cards2
 
 if __name__ == "__main__":
-    print(checkFourOfAKind([12, 7, 6, 5, 5, 5, 5]))
+    print(scoreCards(['6C', '6H', '12D', '11S', '6S', '11C', '10S'],['11D', '10H', '12D', '11S', '6S', '11C', '10S']))

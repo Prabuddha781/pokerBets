@@ -48,7 +48,8 @@ def dealTurn():
 
 def simulateRiverAndTurn():
     player1Card, player2Card = hole_cards[0], hole_cards[1]
-    player1Card.extend(cardsOnTable), player2Card.extend(cardsOnTable)
+    player1Card = player1Card + cardsOnTable
+    player2Card = player2Card + cardsOnTable
     possibleRiverAndTurn = []
     for turn in range(len(bookOfCards) - 1):
         for river in range(turn + 1, len(bookOfCards)):
@@ -60,7 +61,8 @@ def simulateRiverAndTurn():
 
 def simulateRiver():
     player1Card, player2Card = hole_cards[0], hole_cards[1]
-    player1Card.extend(cardsOnTable), player2Card.extend(cardsOnTable)
+    player1Card = player1Card + cardsOnTable
+    player2Card = player2Card + cardsOnTable
     playerAllPossibleCards = []
     for turn in bookOfCards:
         playerAllPossibleCards.append([player1Card + [turn], player2Card + [turn]])
@@ -78,21 +80,28 @@ def checkOddsCalc(simulationStage, numOfIterations):
             p2win += p2score
         else:
             tie += 1
-    p1WinOdds = round((p1win/numOfIterations)*100, 2)
-    p2WinOdds = round((p2win/numOfIterations)*100, 2)
-    tieOdds = round((tie/numOfIterations)*100, 2)
+    p1WinOdds = round((p1win/numOfIterations), 2)
+    p2WinOdds = round((p2win/numOfIterations), 2)
+    tieOdds = round((tie/numOfIterations), 2)
     return(p1WinOdds, p2WinOdds, tieOdds)
 
-def postFlopOddsCalc():
+def postFlopOddsCalc(hole_card):
+    print(cardsOnTable, "postFlopOddsCheck")
+    global hole_cards
+    hole_cards = hole_card
     return checkOddsCalc(simulateRiverAndTurn, 990)
 
 def checkRiverOddsCalc():
     return checkOddsCalc(simulateRiver, 44)
 
 def finalScore():
+    print(hole_cards, "hole cards")
+    print(cardsOnTable, "cards On table")
     player1Card, player2Card = hole_cards[0], hole_cards[1]
-    player1Card += cardsOnTable
-    player2Card += cardsOnTable
+    player1Card = player1Card + cardsOnTable
+    player2Card = player2Card + cardsOnTable
+    print(hole_cards, "hole cards")
+    print(cardsOnTable, "cards On table")
     p1, p2, cards1, cards2 = scoreCards(player1Card, player2Card)
     if p1 > p2:
         return "Player 1 Wins"
@@ -100,3 +109,5 @@ def finalScore():
         return "Player 2 Wins"
     else:
         "It's a draw" 
+
+
