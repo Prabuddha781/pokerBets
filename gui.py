@@ -1,7 +1,7 @@
 from tkinter import PhotoImage
 from tkinter.constants import CENTER, LEFT, RAISED
 from PIL import Image, ImageTk
-from poker import dealHoleCards, dealFlop, dealRiver, dealTurn, cardsOnTable, deckBuilder, bookOfCards, postFlopOddsCalc, checkRiverOddsCalc, finalScore
+from poker import dealHoleCards, dealFlop, dealRiver, dealTurn, cardsOnTable, deckBuilder, bookOfCards, postFlopOddsCalc, checkRiverOddsCalc, finalScore, odds_calculator
 from preFlopChecker import preFlopHelper
 
 try:
@@ -11,7 +11,7 @@ except ImportError:
 
 mainWindow = tk.Tk()
 
-odds_p1, odds_p2, odds_tie = 0.5, 0.5, 0.5
+odds_p1, odds_p2, odds_tie = 1, 1, 0
 
 deckBuilder()
 hole_cards = []
@@ -26,18 +26,43 @@ class PlayerBalance():
         self.amount_on_p2 = []
         self.heading = tk.Label(mainWindow, text="Betting Round: {}".format(list_of_rounds[betting_round_dummy]), justify=CENTER)
         self.heading.grid(row=0, column=5, columnspan=3)
+        self.warning = tk.Label(mainWindow, text="", bg="gray")
+        self.warning.grid(row=3, column=5, columnspan=2)
 
     def bet(self):
         amount = 0
-        self.amount_on_p1.append([int(p1_bet.get()), odds_p1])
-        self.amount_on_tie.append([int(p2_bet.get()), odds_p2])
-        self.amount_on_p2.append([int(tie_bet.get()), odds_tie])
         amount += int(p1_bet.get()) + int(p2_bet.get()) + int(tie_bet.get())
-        self.balance -= amount
-        self.player_balance.grid_forget()
+        if amount < self.balance:
+            self.warning.grid_forget()
+            self.amount_on_p1.append([int(p1_bet.get()), odds_p1])
+            self.amount_on_tie.append([int(tie_bet.get()), odds_p2])
+            self.amount_on_p2.append([int(p2_bet.get()), odds_tie])
+            self.balance -= amount
+            self.player_balance.grid_forget()
+            self.player_balance = tk.Label(mainWindow, text="Current balance is {} coins".format(self.balance), fg='green', wraplength=180, justify=CENTER)
+            self.player_balance.grid(row=0, column=9)
+            self.deal_cards()
+        else:
+            self.warning = tk.Label(mainWindow, text="Your current bet amount exceeds your remaining balance")
+            self.warning.grid(row=3, column=5, columnspan=2)
+
+    def start_new_game(self):
+        self.balance = 1000
         self.player_balance = tk.Label(mainWindow, text="Current balance is {} coins".format(self.balance), fg='green', wraplength=180, justify=CENTER)
         self.player_balance.grid(row=0, column=9)
-        self.deal_cards()
+        self.amount_on_p1 = []
+        self.amount_on_tie = []
+        self.amount_on_p2 = []
+        self.heading = tk.Label(mainWindow, text="Betting Round: {}".format(list_of_rounds[betting_round_dummy]), justify=CENTER)
+        self.heading.grid(row=0, column=5, columnspan=3)
+        self.warning = tk.Label(mainWindow, text="", bg="gray")
+        self.warning.grid(row=3, column=5, columnspan=2)
+        odds_p1_win.grid_forget()
+        odds_p2_win.grid_forget()
+        odds_p1_p2_tie.grid_forget()
+        odds_p1, odds_p2, odds_tie = 1, 1, 0
+        display_odds(odds_p1, odds_p2, odds_tie)
+
 
     def deal_cards(self):
         deal_next_round()
@@ -71,35 +96,46 @@ def deal_next_round():
         turn = dealTurn() 
         result = finalScore()
         display_final_score(result)
-        global net_win 
+        global net_win
+        global net_loss
         net_win = 0
+        net_loss = 0
+        amount_bet_on_p1 = player.amount_on_p1
+        amount_bet_on_p2 = player.amount_on_p2
+        amount_bet_on_tie = player.amount_on_tie
         if result == "Player 1 Wins":
-            amount_bet_on_p1 = player.amount_on_p1
-            for i in player.amount_on_p1:
-                net_win += i[0] * (1+i[1])
+            for i in range(4):
+                net_win += amount_bet_on_p1[i][0] * (1+amount_bet_on_p1[i][1])
+                net_loss += amount_bet_on_p2[i][0]
+                net_loss += amount_bet_on_tie[i][0]
         elif result == "Player 2 Wins":
-            amount_bet_on_p2 = player.amount_on_p2
-            for i in player.amount_on_p2:
-                net_win += i[0] * (1+i[1])
+            for i in range(4):
+                net_win += amount_bet_on_p2[i][0] * (1+amount_bet_on_p2[i][1])
+                net_loss += amount_bet_on_p1[i][0]
+                net_loss += amount_bet_on_tie[i][0]
         else:
-            amount_bet_on_tie = player.amount_on_tie
-            for i in player.amount_on_tie:
-                net_win += i[0] * (1+i[1])
-        print(player.amount_on_p1)
-        print(net_win)
-        print(player.amount_on_p2)
-        print(player.amount_on_tie)
+            for i in range(4):
+                net_win += amount_bet_on_tie[i][0] * (1+amount_bet_on_tie[i][1])
+                net_loss += amount_bet_on_p2[i][0]
+                net_loss += amount_bet_on_p1[i][0]
+        player.balance = player.balance + net_win - net_loss
+        player.player_balance.grid_forget()
+        player.player_balance = tk.Label(mainWindow, text="Current balance is {} coins".format(player.balance), fg='green', wraplength=180, justify=CENTER)
+        player.player_balance.grid(row=0, column=9)
+        print(amount_bet_on_p1)
+        print(amount_bet_on_p2)
+        print(player.balance)
     add_post_flop_photos()
 
 def display_odds(odds_p1, odds_p2, odds_tie=0):
     global odds_p1_win
     global odds_p2_win
     global odds_p1_p2_tie
-    odds_p1_win = tk.Label(mainWindow, text="P1 win = {}%".format(str(round(odds_p1*100, 2))), bg="#9a9898", fg="#222dca")
+    odds_p1_win = tk.Label(mainWindow, text="P1 odds = 1 to {}".format(str(round(odds_p1, 2))), bg="#9a9898", fg="#222dca")
     odds_p1_win.grid(row=4, column=2, columnspan=2)
-    odds_p2_win = tk.Label(mainWindow, text="P2 win = {}%".format(str(round(odds_p2*100, 2))), bg="#9a9898", fg="#222dca")
+    odds_p2_win = tk.Label(mainWindow, text="P2 odds = 1 to {}".format(str(round(odds_p2,2))), bg="#9a9898", fg="#222dca")
     odds_p2_win.grid(row=4, column=8, columnspan=2)
-    odds_p1_p2_tie = tk.Label(mainWindow, text="Odds of tie = {}%".format(str(round(odds_tie*100,2))), justify=CENTER, bg="#9a9898", fg="#222dca")
+    odds_p1_p2_tie = tk.Label(mainWindow, text="Odds of tie = 1 to {}".format(str(round(odds_tie,2))), justify=CENTER, bg="#9a9898", fg="#222dca")
     odds_p1_p2_tie.grid(row=4, column=5, columnspan=2)
 
 def display_final_score(result):
@@ -203,11 +239,11 @@ p1_card2 = tk.Label(mainWindow, image=cards[0][1]).grid(row=3, column=3)
 p2_card1 = tk.Label(mainWindow, image=cards[1][0]).grid(row=3, column=8)
 p2_card2 = tk.Label(mainWindow, image=cards[1][1]).grid(row=3, column=9)
 
-odds_p1_win = tk.Label(mainWindow, text="P1 win = {}%".format(str(odds_p1*100)), bg="#9a9898", fg="#222dca")
+odds_p1_win = tk.Label(mainWindow, text="P1 odds = {}".format(str(odds_p1)), bg="#9a9898", fg="#222dca")
 odds_p1_win.grid(row=4, column=2, columnspan=2)
-odds_p2_win = tk.Label(mainWindow, text="P2 win = {}%".format(str(odds_p2*100)), bg="#9a9898", fg="#222dca")
+odds_p2_win = tk.Label(mainWindow, text="P2 odds = {}".format(str(odds_p2)), bg="#9a9898", fg="#222dca")
 odds_p2_win.grid(row=4, column=8, columnspan=2)
-odds_p1_p2_tie = tk.Label(mainWindow, text="Odds of tie = {}%".format(str(odds_tie*100)), justify=CENTER, bg="#9a9898", fg="#222dca")
+odds_p1_p2_tie = tk.Label(mainWindow, text="Odds of tie = {}".format(str(odds_tie)), justify=CENTER, bg="#9a9898", fg="#222dca")
 odds_p1_p2_tie.grid(row=4, column=5, columnspan=2)
 
 p1_bet = tk.Entry(mainWindow, width=5, relief=RAISED, justify=CENTER)
@@ -223,5 +259,7 @@ tie_bet.grid(row=5, column=5, columnspan=2)
 p1_bet_btn = tk.Button(mainWindow, text="Bet", justify=CENTER, padx=10, pady=3, command=player.bet).grid(row=6, column=2, columnspan=2)
 p2_bet_btn = tk.Button(mainWindow, text="Bet", justify=CENTER, padx=10, pady=3, command=player.bet).grid(row=6, column=8, columnspan=2)
 tie_bet_btn = tk.Button(mainWindow, text="Bet", justify=CENTER, padx=10, pady=3, command=player.bet).grid(row=6, column=5, columnspan=2)
+
+start_again_button = tk.Button(mainWindow, text="Start Again", justify=CENTER, padx=10, pady=3, command=player.start_new_game).grid(row=9, column=9, columnspan=2)
 
 mainWindow.mainloop()

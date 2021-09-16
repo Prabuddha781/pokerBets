@@ -1,4 +1,4 @@
-from poker import dealHoleCards
+from poker import dealHoleCards, odds_calculator
 
 
 def preFlopChecker(cards):
@@ -61,10 +61,12 @@ def preFlopHelper(cards):
     p1_cards = [p1_card, sorted(p1_card, reverse=True)]
     resKeys = list(res.keys())
     print(res[resKeys[0]])
+    odds_1 = odds_calculator(resKeys[0])
+    odds_2 = odds_calculator(resKeys[1])
     if res[resKeys[0]] in p1_cards:
-        return resKeys[0], resKeys[1]
+        return odds_1, odds_2
     if res[resKeys[1]] in p1_cards:
-        return resKeys[1], resKeys[0]
+        return odds_2, odds_1
 
 if __name__ == "__main__":
     print(preFlopHelper([['6S', '9S'], ['13H', '14C']]))

@@ -80,10 +80,13 @@ def checkOddsCalc(simulationStage, numOfIterations):
             p2win += p2score
         else:
             tie += 1
-    p1WinOdds = round((p1win/numOfIterations), 2)
-    p2WinOdds = round((p2win/numOfIterations), 2)
-    tieOdds = round((tie/numOfIterations), 2)
-    return(p1WinOdds, p2WinOdds, tieOdds)
+    p1WinOdds = p1win/numOfIterations
+    p2WinOdds = p2win/numOfIterations
+    tieOdds = tie/numOfIterations
+    p1_win_odds = odds_calculator(p1WinOdds)
+    p2_win_odds = odds_calculator(p2WinOdds)
+    tie_odds = odds_calculator(tieOdds)
+    return(p1_win_odds, p2_win_odds, tie_odds)
 
 def postFlopOddsCalc(hole_card):
     print(cardsOnTable, "postFlopOddsCheck")
@@ -110,4 +113,15 @@ def finalScore():
     else:
         "It's a draw" 
 
+def odds_calculator(probability):
+    if probability != 0:
+        odds_manipulator = (randrange(-6,4))/100
+        odds = round(1/(probability/(1-probability)),1) + odds_manipulator
+        if odds < 0:
+            return 0.02
+    else:
+        odds = 100
+    return odds
 
+if __name__ == "__main__":
+    print(odds_calculator(0.99))
