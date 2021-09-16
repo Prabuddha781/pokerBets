@@ -62,6 +62,8 @@ class PlayerBalance():
         odds_p1_p2_tie.grid_forget()
         odds_p1, odds_p2, odds_tie = 1, 1, 0
         display_odds(odds_p1, odds_p2, odds_tie)
+        hole_cards = []
+        add_photos()
 
 
     def deal_cards(self):
