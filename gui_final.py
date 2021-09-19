@@ -3,6 +3,7 @@ from tkinter.constants import CENTER, END, LEFT, RAISED
 from PIL import Image, ImageTk
 from poker import dealHoleCards, dealFlop, dealRiver, dealTurn, cardsOnTable, deckBuilder, bookOfCards, postFlopOddsCalc, checkRiverOddsCalc, finalScore, reset_cards
 from preFlopChecker import preFlopHelper
+from tkinter import messagebox
 
 try:
     import tkinter as tk
@@ -10,6 +11,8 @@ except ImportError:
     import Tkinter as tk
 
 mainWindow = tk.Tk()
+
+messagebox.showinfo("Instructions", "The odds have been altered slightly. It is your job to find out which odds are inflated and bet accordingly.")
 
 deckBuilder()
 
@@ -30,16 +33,17 @@ backImage = ImageTk.PhotoImage(Image.open(photoDict['0']))
 
 class PlayerBalance():
     def __init__(self):
+        self.betting_round = "Pre-Hole Cards"
+        self.heading = tk.Label(mainWindow, text="Betting Round: {}".format(self.betting_round), justify=CENTER)
+        self.heading.grid(row=0, column=5, columnspan=3)
         self.images = [backImage, backImage, backImage, backImage, backImage]
         self.cards = [[backImage, backImage], [backImage, backImage]]
         self.balance = 1000
-        self.player_balance = tk.Label(mainWindow, text="Current balance is {} coins".format(self.balance), fg='green', wraplength=180, justify=CENTER)
-        self.player_balance.grid(row=0, column=9)
+        self.display_balance()
+        self.starting_balance = self.balance
         self.amount_on_p1 = []
         self.amount_on_tie = []
         self.amount_on_p2 = []
-        # self.heading = tk.Label(mainWindow, text="Betting Round: {}".format(list_of_rounds[betting_round_dummy]), justify=CENTER)
-        # self.heading.grid(row=0, column=5, columnspan=3)
         self.warning = tk.Label(mainWindow, text="", bg="gray")
         self.warning.grid(row=7, column=5, columnspan=2)
         self.hole_cards = []
@@ -48,6 +52,20 @@ class PlayerBalance():
         self.add_photos()
         self.display_odds(self.odds_p1, self.odds_p2, self.odds_tie)
         self.display_bet_entry_boxes()
+
+    def display_balance(self):
+        self.player_balance = tk.Label(mainWindow, text="Current balance is {} coins".format(self.balance), fg='green', wraplength=180, justify=CENTER)
+        self.player_balance.grid(row=0, column=9)
+
+    def update_heading(self):
+        if self.betting_round == "All cards dealt. Press Start Again to play new game.":
+            self.heading.grid_forget()
+            self.heading = tk.Label(mainWindow, text="Betting Round: {}".format(self.betting_round), justify=CENTER, fg="#2fc52f", bg="#05056d")
+            self.heading.grid(row=0, column=5, columnspan=3)
+        else:
+            self.heading.grid_forget()
+            self.heading = tk.Label(mainWindow, text="Betting Round: {}".format(self.betting_round), justify=CENTER)
+            self.heading.grid(row=0, column=5, columnspan=3)
 
     def bet(self):
         amount = 0
@@ -59,84 +77,81 @@ class PlayerBalance():
             self.amount_on_p2.append([int(self.p2_bet.get()), self.odds_tie])
             self.balance -= amount
             self.player_balance.grid_forget()
-            self.player_balance = tk.Label(mainWindow, text="Current balance is {} coins".format(self.balance), fg='green', wraplength=180, justify=CENTER)
-            self.player_balance.grid(row=0, column=9)
+            self.display_balance()
             self.forget_last_odds()
-            self.deal_cards()
+            self.deal_next_round()
         else:
             self.warning = tk.Label(mainWindow, text="Your current bet amount exceeds your remaining balance")
             self.warning.grid(row=7, column=5, columnspan=2)
         self.initialize_bet_entry_boxes()
+        print(self.amount_on_p1)
+        print(self.amount_on_p2)
+        print(self.amount_on_tie)
 
     def start_new_game(self):
+        self.starting_balance = self.balance
         self.amount_on_p1 = []
         self.amount_on_tie = []
         self.amount_on_p2 = []
         self.hole_cards = []
         reset_cards()
-        # bookOfCards = deckBuilder()
-        print(cardsOnTable)
-        print(bookOfCards)
-        print(len(bookOfCards))
         self.warning = tk.Label(mainWindow, text="", bg="gray")
         self.warning.grid(row=7, column=5, columnspan=2)
         self.forget_last_odds()
         self.odds_p1, self.odds_p2, self.odds_tie = 1, 1, 0
         self.display_odds(self.odds_p1, self.odds_p2, self.odds_tie)
+        self.final_score.grid_forget()
         self.initialize_hole_cards_pics()
         self.initialize_cards_on_table()
 
-    def deal_cards(self):
-        self.deal_next_round()
-        # self.heading.grid_forget()
-
     def deal_next_round(self):
-        print(len(bookOfCards))
-        print(len(cardsOnTable))
         if len(bookOfCards) == 52:
+            self.betting_round = "Pre-Flop"
+            self.update_heading()
             self.hole_cards = dealHoleCards(2)
             self.odds_p1, self.odds_p2 = preFlopHelper(self.hole_cards)
             self.odds_tie = 0
             self.display_odds(self.odds_p1, self.odds_p2, self.odds_tie)
             self.add_photos()
         elif len(bookOfCards) == 48:
+            self.betting_round = "Post-Flop"
+            self.update_heading()
             dealFlop()
             self.odds_p1, self.odds_p2, self.odds_tie = postFlopOddsCalc(self.hole_cards)
             self.display_odds(self.odds_p1, self.odds_p2, self.odds_tie)
         elif len(bookOfCards) == 45:
+            self.betting_round = "Turn"
+            self.update_heading()
             dealTurn()
             self.odds_p1, self.odds_p2, self.odds_tie = checkRiverOddsCalc()
             self.display_odds(self.odds_p1, self.odds_p2, self.odds_tie)
         elif len(bookOfCards) == 44:
+            self.betting_round = "All cards dealt. Press Start Again to play new game."
+            self.update_heading()
             turn = dealRiver() 
             result = finalScore()
-            self.display_final_score(result)
             global net_win
             global net_loss
             net_win = 0
             net_loss = 0
+            # check these three lines again
             amount_bet_on_p1 = self.amount_on_p1
             amount_bet_on_p2 = self.amount_on_p2
             amount_bet_on_tie = self.amount_on_tie
             if result == "Player 1 Wins":
                 for i in range(4):
                     net_win += amount_bet_on_p1[i][0] * (1+amount_bet_on_p1[i][1])
-                    net_loss += amount_bet_on_p2[i][0]
-                    net_loss += amount_bet_on_tie[i][0]
             elif result == "Player 2 Wins":
                 for i in range(4):
                     net_win += amount_bet_on_p2[i][0] * (1+amount_bet_on_p2[i][1])
-                    net_loss += amount_bet_on_p1[i][0]
-                    net_loss += amount_bet_on_tie[i][0]
             else:
                 for i in range(4):
                     net_win += amount_bet_on_tie[i][0] * (1+amount_bet_on_tie[i][1])
-                    net_loss += amount_bet_on_p2[i][0]
-                    net_loss += amount_bet_on_p1[i][0]
-            self.balance = self.balance + net_win - net_loss
+            self.balance = self.balance + net_win
             self.player_balance.grid_forget()
-            self.player_balance = tk.Label(mainWindow, text="Current balance is {} coins".format(player.balance), fg='green', wraplength=180, justify=CENTER)
-            self.player_balance.grid(row=0, column=9)
+            self.display_balance()
+            winning_on_this_game = self.balance - self.starting_balance
+            self.display_final_score(result, winning_on_this_game)
         self.add_post_flop_photos()
 
     def display_odds(self, odds_p1, odds_p2, odds_tie=0):
@@ -171,9 +186,21 @@ class PlayerBalance():
         self.tie_bet.delete(0, END)
         self.tie_bet.insert(0, "0")
 
-    def display_final_score(self, result):
-        final_score = tk.Label(mainWindow, text="{}".format(result), bg="#9a9898", fg="#222dca", font=("Helvetica", 25))
-        final_score.grid(row=3, column=5, columnspan=2)
+    def display_final_score(self, result, winning_on_this_game):
+        if winning_on_this_game > 0:
+            winning_in_round = "You made $$$ {}".format(winning_on_this_game)
+            text_color = "green"
+            wrap_length = 210
+        elif winning_on_this_game < 0:
+            winning_in_round = "You lost $$$ {}".format(winning_on_this_game*-1)
+            text_color = "red"
+            wrap_length = 210
+        else:
+            winning_in_round = "You didn't make any $$$ this round"
+            text_color = "white"
+            wrap_length = 110
+        self.final_score = tk.Label(mainWindow, text="{}.{}".format(result, winning_in_round), bg="#9a9898", fg=text_color, font=("Helvetica", 22))
+        self.final_score.grid(row=2, column=3, columnspan=7)
         self.odds_p1_win.grid_forget()
         self.odds_p2_win.grid_forget()
         self.odds_p1_p2_tie.grid_forget()

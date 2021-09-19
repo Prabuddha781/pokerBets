@@ -128,5 +128,4 @@ def reset_cards():
     cardsOnTable.clear()
     bookOfCards.clear()
     bookOfCards.extend(deckBuilder())
-    print(bookOfCards)
     # bookOfCards = deckBuilder()
