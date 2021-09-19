@@ -60,7 +60,6 @@ def preFlopHelper(cards):
     p1_card = sorted(hands[0])
     p1_cards = [p1_card, sorted(p1_card, reverse=True)]
     resKeys = list(res.keys())
-    print(res[resKeys[0]])
     odds_1 = odds_calculator(resKeys[0])
     odds_2 = odds_calculator(resKeys[1])
     if res[resKeys[0]] in p1_cards:

@@ -87,18 +87,21 @@ def checkTwoPair(card):
     card_no_dup = list(set(card))
     card_no_dup.sort(reverse=True)
     setCard2 = set(card)
-    if len(card_no_dup) == 4 or len(card_no_dup) == 5:
-        pairs = []
-        for i in card_no_dup:
-            if len(pairs) < 2:
-                if card.count(i) == 2:
-                    pairs.append(i)
-                    setCard2.remove(i)
-            else: 
-                break
-        pairs.sort(reverse=True)
-        score += pairs[0] + pairs[1]/100  + max(setCard2)/10000
-        return score
+    try:
+        if len(card_no_dup) == 4 or len(card_no_dup) == 5:
+            pairs = []
+            for i in card_no_dup:
+                if len(pairs) < 2:
+                    if card.count(i) == 2:
+                        pairs.append(i)
+                        setCard2.remove(i)
+                else: 
+                    break
+            pairs.sort(reverse=True)
+            score += pairs[0] + pairs[1]/100  + max(setCard2)/10000
+            return score
+    except IndexError:
+        pass
     return 0
 
 def checkPair(card):
@@ -172,8 +175,7 @@ def scoreCards(cards1, cards2):
     elif p2score > p1score:
         return 0, 1, cards1, cards2
     else:
-        print("not found", cards1, cards2)
         return 0, 0, cards1, cards2
 
-if __name__ == "__main__":
-    print(scoreCards(['6C', '6H', '12D', '11S', '6S', '11C', '10S'],['11D', '10H', '12D', '11S', '6S', '11C', '10S']))
+# if __name__ == "__main__":
+#     print(scoreCards(['2D', '5H', '8H', '8C', '7S', '14S', '7C'], ['10C', '11H', '8H', '8C', '7S', '14S', '7C']))

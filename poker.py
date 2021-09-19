@@ -24,27 +24,31 @@ def dealCards(numberOfCards):
     return dealtCards
 
 def dealHoleCards(numberOfPlayers):
-    numberOfCards = numberOfPlayers * 2
-    dealtCards = dealCards(numberOfCards)
-    cards = []
-    for i in range(0, numberOfCards, 2):
-        cards.append([dealtCards[i], dealtCards[i+1]])
-    return cards
+    if len(bookOfCards) == 52:
+        numberOfCards = numberOfPlayers * 2
+        dealtCards = dealCards(numberOfCards)
+        cards = []
+        for i in range(0, numberOfCards, 2):
+            cards.append([dealtCards[i], dealtCards[i+1]])
+        return cards
 
 def dealFlop():
-    flop = dealCards(3)
-    cardsOnTable.extend(flop)
-    return flop
+    if len(bookOfCards) ==48:
+        flop = dealCards(3)
+        cardsOnTable.extend(flop)
+        return flop
 
 def dealRiver():
-    river = dealCards(1)
-    cardsOnTable.extend(river)
-    return river
+    if len(bookOfCards) == 44:
+        river = dealCards(1)
+        cardsOnTable.extend(river)
+        return river
 
 def dealTurn():
-    turn = dealCards(1)
-    cardsOnTable.extend(turn)
-    return dealCards(1)
+    if len(bookOfCards) == 45:
+        turn = dealCards(1)
+        cardsOnTable.extend(turn)
+        return turn
 
 def simulateRiverAndTurn():
     player1Card, player2Card = hole_cards[0], hole_cards[1]
@@ -64,8 +68,8 @@ def simulateRiver():
     player1Card = player1Card + cardsOnTable
     player2Card = player2Card + cardsOnTable
     playerAllPossibleCards = []
-    for turn in bookOfCards:
-        playerAllPossibleCards.append([player1Card + [turn], player2Card + [turn]])
+    for river in bookOfCards:
+        playerAllPossibleCards.append([player1Card + [river], player2Card + [river]])
     return playerAllPossibleCards
 
 
@@ -89,7 +93,6 @@ def checkOddsCalc(simulationStage, numOfIterations):
     return(p1_win_odds, p2_win_odds, tie_odds)
 
 def postFlopOddsCalc(hole_card):
-    print(cardsOnTable, "postFlopOddsCheck")
     global hole_cards
     hole_cards = hole_card
     return checkOddsCalc(simulateRiverAndTurn, 990)
@@ -98,13 +101,9 @@ def checkRiverOddsCalc():
     return checkOddsCalc(simulateRiver, 44)
 
 def finalScore():
-    print(hole_cards, "hole cards")
-    print(cardsOnTable, "cards On table")
     player1Card, player2Card = hole_cards[0], hole_cards[1]
     player1Card = player1Card + cardsOnTable
     player2Card = player2Card + cardsOnTable
-    print(hole_cards, "hole cards")
-    print(cardsOnTable, "cards On table")
     p1, p2, cards1, cards2 = scoreCards(player1Card, player2Card)
     if p1 > p2:
         return "Player 1 Wins"
@@ -114,14 +113,20 @@ def finalScore():
         "It's a draw" 
 
 def odds_calculator(probability):
-    if probability != 0:
+    if probability == 0:
+        odds = 100
+    elif probability != 1:
         odds_manipulator = (randrange(-6,4))/100
         odds = round(1/(probability/(1-probability)),1) + odds_manipulator
         if odds < 0:
             return 0.02
     else:
-        odds = 100
+        odds = 0.02
     return odds
 
-if __name__ == "__main__":
-    print(odds_calculator(0.99))
+def reset_cards():
+    cardsOnTable.clear()
+    bookOfCards.clear()
+    bookOfCards.extend(deckBuilder())
+    print(bookOfCards)
+    # bookOfCards = deckBuilder()
