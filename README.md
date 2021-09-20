@@ -1,6 +1,11 @@
 # pokerBets
 A user-intuitive game where players can bet on multiple hands of poker at different stage of the game.
 
+If you don't know how to use a tkinter file:
+- Clone the repo into your desktop.
+- Install the packages that are in the requirements.txt. Google how to install python packages if you don't know how.
+- Open the gui-final.py file and run it.
+
 FYI:
 users - the human playing the game - most likely you 
 
