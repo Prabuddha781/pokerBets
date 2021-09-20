@@ -1,54 +1,47 @@
-def cardNumbers(card):
-    res = []
-    for i in card:
-        res.append(i[:-1])
-    return res
-
 # takes as input a list of card numbers not card and suites combined
-def checkFourOfAKind(card):
-    setCard = set(card)
-    if len(setCard) <= 4: 
+def check_four_of_a_kind(card):
+    set_card = set(card)
+    if len(set_card) <= 4: 
         for i in card:
             if card.count(i) == 4:
-                setCard.remove(i)
-                return 900 + i + (max(setCard)/100)
+                set_card.remove(i)
+                return 900 + i + (max(set_card)/100)
     return 0
 
 # takes as input a list of card numbers not card and suites combined
-def checkFullHouse(card):
+def check_full_house(card):
     card.sort(reverse=True)
     score = 800
-    setCard = set(card)
-    if len(setCard) <= 4: 
+    set_card = set(card)
+    if len(set_card) <= 4: 
         for i in card:
             if card.count(i) == 3:
-                setCard.remove(i)
-                if len(setCard) <= 3:
-                    listCard = list(setCard)
-                    listCard.sort(reverse=True)
-                    for j in listCard:
+                set_card.remove(i)
+                if len(set_card) <= 3:
+                    list_card = list(set_card)
+                    list_card.sort(reverse=True)
+                    for j in list_card:
                         if card.count(j) >= 2:
                             score += i + j/100
                     return score
     return 0
 
-def checkFlush(card, suites):
+def check_flush(card, suites):
     score = 700
-    possibleFlushes = []
-    setSuites = set(suites)
+    possible_flushes = []
     for i, j in enumerate(suites):
         if suites.count(j) >= 5:
-            possibleFlushes.append(card[i])
-    if possibleFlushes:
-        possibleFlushes.sort(reverse=True)
-        highestPossibleFlushes = possibleFlushes[:5]
+            possible_flushes.append(card[i])
+    if possible_flushes:
+        possible_flushes.sort(reverse=True)
+        highest_possible_flushes = possible_flushes[:5]
         for k in range(5):
-            score += max(highestPossibleFlushes)/10**k
-            highestPossibleFlushes.remove(max(highestPossibleFlushes))
-        return score, possibleFlushes 
+            score += max(highest_possible_flushes)/10**k
+            highest_possible_flushes.remove(max(highest_possible_flushes))
+        return score, possible_flushes 
     return 0, 0
 
-def checkStraight(card):
+def check_straight(card):
     card = list(set(card))
     card.sort(reverse=True)
     for i in range(len(card)-4):
@@ -66,27 +59,27 @@ def checkStraight(card):
     return 0
 
 # takes as input a list of card numbers not card and suites combined
-def checkThreeOfAKind(card): 
+def check_three_of_a_kind(card): 
     score = 400
-    setCard =  set(card)
-    if len(setCard) <= 5: 
+    set_card =  set(card)
+    if len(set_card) <= 5: 
         for i in card:
             if card.count(i) == 3:
                 score += i
-                setCard.remove(i)
-                secondHighest = max(setCard)
-                score += secondHighest/100
-                setCard.remove(secondHighest)
-                thirdHighest = max(setCard)
-                score += thirdHighest/1000
+                set_card.remove(i)
+                second_highest = max(set_card)
+                score += second_highest/100
+                set_card.remove(second_highest)
+                third_highest = max(set_card)
+                score += third_highest/1000
                 return score
     return 0
 
-def checkTwoPair(card):
+def check_two_pair(card):
     score = 300
     card_no_dup = list(set(card))
     card_no_dup.sort(reverse=True)
-    setCard2 = set(card)
+    set_card_2 = set(card)
     try:
         if len(card_no_dup) == 4 or len(card_no_dup) == 5:
             pairs = []
@@ -94,17 +87,17 @@ def checkTwoPair(card):
                 if len(pairs) < 2:
                     if card.count(i) == 2:
                         pairs.append(i)
-                        setCard2.remove(i)
+                        set_card_2.remove(i)
                 else: 
                     break
             pairs.sort(reverse=True)
-            score += pairs[0] + pairs[1]/100  + max(setCard2)/10000
+            score += pairs[0] + pairs[1]/100  + max(set_card_2)/10000
             return score
     except IndexError:
         pass
     return 0
 
-def checkPair(card):
+def check_pair(card):
     score = 200
     if len(set(card)) == 6:
         for i in card:
@@ -116,7 +109,7 @@ def checkPair(card):
         return score
     return 0
 
-def checkHighCard(card):
+def check_high_card(card):
     score = 100
     card.sort(reverse=True)
     for i in range(5):
@@ -124,17 +117,17 @@ def checkHighCard(card):
         card.remove(max(card))
     return score
 
-def checkStraightFlush(card, suites):
-    if checkFlush(card, suites) != 0:
-        score, cards = checkFlush(card, suites)
+def check_straight_flush(card, suites):
+    if check_flush(card, suites) != 0:
+        score, cards = check_flush(card, suites)
         if score > 0:
-            res = checkStraight(cards)
+            res = check_straight(cards)
             if res > 0:
                 return res + 400
             return 0
     return 0
 
-def scoreCards(cards1, cards2):
+def score_cards(cards1, cards2):
     card1, card2 = [], []
     suites1, suites2 = [], []
     for i in cards1: 
@@ -143,39 +136,39 @@ def scoreCards(cards1, cards2):
     for j in cards2:
         card2.append(int(j[:-1]))
         suites2.append(j[-1])
-    p1score, p2score = 0, 0
-    p1score = checkStraightFlush(card1,suites1)
-    p2score = checkStraightFlush(card2, suites2)
-    if p1score == 0 and p2score == 0:
-        p1score = checkFourOfAKind(card1)
-        p2score = checkFourOfAKind(card2) 
-        if p1score == 0 and p2score == 0:
-            p1score = checkFullHouse(card1)
-            p2score = checkFullHouse(card2) 
-            if p1score == 0 and p2score == 0:
-                p1score, possibleFlushes = checkFlush(card1, suites1)
-                p2score, PossibleFlushes = checkFlush(card2, suites2)             
-                if p1score == 0 and p2score == 0:
-                    p1score = checkStraight(card1)
-                    p2score =  checkStraight(card2)                      
-                    if p1score == 0 and p2score == 0:
-                        p1score = checkThreeOfAKind(card1)
-                        p2score =  checkThreeOfAKind(card2)                        
-                        if p1score == 0 and p2score == 0:
-                            p1score = checkTwoPair(card1)
-                            p2score =  checkTwoPair(card2)    
-                            if p1score == 0 and p2score == 0:
-                                p1score = checkPair(card1)
-                                p2score =  checkPair(card2)    
-                                if p1score == 0 and p2score == 0:
-                                    p1score = checkHighCard(card1)
-                                    p2score =  checkHighCard(card2)
-    if p1score > p2score:
-        return 1, 0, p1score, p2score
-    elif p2score > p1score:
-        return 0, 1, p1score, p2score
+    p1_score, p2_score = 0, 0
+    p1_score = check_straight_flush(card1,suites1)
+    p2_score = check_straight_flush(card2, suites2)
+    if p1_score == 0 and p2_score == 0:
+        p1_score = check_four_of_a_kind(card1)
+        p2_score = check_four_of_a_kind(card2) 
+        if p1_score == 0 and p2_score == 0:
+            p1_score = check_full_house(card1)
+            p2_score = check_full_house(card2) 
+            if p1_score == 0 and p2_score == 0:
+                p1_score, possible_flushes = check_flush(card1, suites1)
+                p2_score, possible_flushes = check_flush(card2, suites2)             
+                if p1_score == 0 and p2_score == 0:
+                    p1_score = check_straight(card1)
+                    p2_score =  check_straight(card2)                      
+                    if p1_score == 0 and p2_score == 0:
+                        p1_score = check_three_of_a_kind(card1)
+                        p2_score =  check_three_of_a_kind(card2)                        
+                        if p1_score == 0 and p2_score == 0:
+                            p1_score = check_two_pair(card1)
+                            p2_score =  check_two_pair(card2)    
+                            if p1_score == 0 and p2_score == 0:
+                                p1_score = check_pair(card1)
+                                p2_score =  check_pair(card2)    
+                                if p1_score == 0 and p2_score == 0:
+                                    p1_score = check_high_card(card1)
+                                    p2_score =  check_high_card(card2)
+    if p1_score > p2_score:
+        return 1, 0, p1_score, p2_score
+    elif p2_score > p1_score:
+        return 0, 1, p1_score, p2_score
     else:
-        return 0, 0, p1score, p2score
+        return 0, 0, p1_score, p2_score
 
 if __name__ == "__main__":
-    print(scoreCards(['5D', '2H', '7D', '4H', '5S', '8H', '6H'], ['6S', '2H', '7D', '4H', '5S', '8H', '6H']))
+    print(score_cards(['5D', '2H', '7D', '4H', '5S', '8H', '6H'], ['6S', '2H', '7D', '4H', '5S', '8H', '6H']))
