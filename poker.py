@@ -78,7 +78,7 @@ def checkOddsCalc(simulationStage, numOfIterations):
     p1win, p2win = 0, 0
     tie = 0
     for cardSets in simulatedCards:
-        p1score, p2score, cards1, cards2 = scoreCards(cardSets[0], cardSets[1])
+        p1score, p2score, card1_score, cards_score = scoreCards(cardSets[0], cardSets[1])
         if p1score == 1 or p2score == 1:
             p1win += p1score
             p2win += p2score
@@ -100,17 +100,22 @@ def postFlopOddsCalc(hole_card):
 def checkRiverOddsCalc():
     return checkOddsCalc(simulateRiver, 44)
 
+score_card_dict = {1:"Highcard", 2:"Pair", 3:"Two Pair", 4:"Three of a kind", 6:"Straight", 7:"Flush", 8:"Full House", 9:"Four of a kind", 10: "Straight Flush"}
+
 def finalScore():
     player1Card, player2Card = hole_cards[0], hole_cards[1]
     player1Card = player1Card + cardsOnTable
     player2Card = player2Card + cardsOnTable
-    p1, p2, cards1, cards2 = scoreCards(player1Card, player2Card)
+    p1, p2, card1_score, card2_score = scoreCards(player1Card, player2Card)
     if p1 > p2:
-        return "Player 1 Wins"
+        card_rank = score_card_dict[card1_score//100]
+        return "Player 1 Wins", card_rank
     elif p2 > p1:
-        return "Player 2 Wins"
+        card_rank = score_card_dict[card2_score//100]
+        return "Player 2 Wins", card_rank
     else:
-        "It's a draw" 
+        card_rank = score_card_dict[card1_score//100]
+        return "It's a draw", card_rank 
 
 def odds_calculator(probability):
     if probability == 0:
@@ -128,4 +133,3 @@ def reset_cards():
     cardsOnTable.clear()
     bookOfCards.clear()
     bookOfCards.extend(deckBuilder())
-    # bookOfCards = deckBuilder()

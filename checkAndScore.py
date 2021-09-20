@@ -171,11 +171,11 @@ def scoreCards(cards1, cards2):
                                     p1score = checkHighCard(card1)
                                     p2score =  checkHighCard(card2)
     if p1score > p2score:
-        return 1, 0, cards1, cards2
+        return 1, 0, p1score, p2score
     elif p2score > p1score:
-        return 0, 1, cards1, cards2
+        return 0, 1, p1score, p2score
     else:
-        return 0, 0, cards1, cards2
+        return 0, 0, p1score, p2score
 
-# if __name__ == "__main__":
-#     print(scoreCards(['2D', '5H', '8H', '8C', '7S', '14S', '7C'], ['10C', '11H', '8H', '8C', '7S', '14S', '7C']))
+if __name__ == "__main__":
+    print(scoreCards(['5D', '2H', '7D', '4H', '5S', '8H', '6H'], ['6S', '2H', '7D', '4H', '5S', '8H', '6H']))
