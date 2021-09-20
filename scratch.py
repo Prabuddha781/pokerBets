@@ -1,3 +1,0 @@
-ram = int()
-
-print(ram)
