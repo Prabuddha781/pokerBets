@@ -2,7 +2,7 @@
 A user-intuitive game where players can bet on multiple hands of poker at different stage of the game.
 
 FYI:
-users - the human playing the game - most likely you
+users - the human playing the game - most likely you 
 players - the two players in the table
 
 - The flow of the game:
