@@ -1,5 +1,17 @@
-# takes as input a list of card numbers not card and suites combined
+#The module works as such:
+#There are individual functions that check if there is a specfic hand e.g. check_four_of_a_kind(), check_flush() etc.
+#The score_hands() function calls these individual functions sequentially to calculate the highest card a player has.
+#E.g. check_straight_flush() is called and returns 0 i.e. the card does not have a straight flush. So the 
+# check_four_of_a_kind() function is called to see if there are four of a kind cards. The process continues until the 
+# highest card a player has is found. 
+
+
 def check_four_of_a_kind(card):
+    """This function takes in the card numbers e.g. 13 for King, 14 for Ace.
+    : Checks if there are four cards of the same type.
+    :type card: list of str
+    :rtype: float
+    """
     set_card = set(card)
     if len(set_card) <= 4: 
         for i in card:
@@ -8,8 +20,13 @@ def check_four_of_a_kind(card):
                 return 900 + i + (max(set_card)/100)
     return 0
 
-# takes as input a list of card numbers not card and suites combined
+
 def check_full_house(card):
+    """This function takes in the card numbers. Checks if there are three
+    : cards of the same rank and 2 other cards of the same rank. e.g. KKK33.
+    :type card: list of str
+    :rtype: float
+    """
     card.sort(reverse=True)
     score = 800
     set_card = set(card)
@@ -26,7 +43,14 @@ def check_full_house(card):
                     return score
     return 0
 
+
 def check_flush(card, suites):
+    """This function takes in the card numbers as well as suites. Checks if there 
+    :are five cards of the same suite.
+    :type card: list of str
+    :type suites: list of str
+    :rtype: float
+    """
     score = 700
     possible_flushes = []
     for i, j in enumerate(suites):
@@ -42,6 +66,10 @@ def check_flush(card, suites):
     return 0, 0
 
 def check_straight(card):
+    """This function takes in the card numbers. Checks if there 
+    :are five or more in a row. Exception Ace,2,3,4,5.
+    :type card: list of str
+    :rtype: float"""
     card = list(set(card))
     card.sort(reverse=True)
     for i in range(len(card)-4):
@@ -58,8 +86,13 @@ def check_straight(card):
         return 0
     return 0
 
-# takes as input a list of card numbers not card and suites combined
+
 def check_three_of_a_kind(card): 
+    """This function checks if there are three cards of the same rank. 
+    : e.g. KKK23
+    :type card: list of str
+    :rtype: float
+    """
     score = 400
     set_card =  set(card)
     if len(set_card) <= 5: 
@@ -76,6 +109,9 @@ def check_three_of_a_kind(card):
     return 0
 
 def check_two_pair(card):
+    """This function checks if there are two pairs. e.g. 44KK9.
+    :type card: list of str
+    :rtype: float"""
     score = 300
     card_no_dup = list(set(card))
     card_no_dup.sort(reverse=True)
@@ -98,6 +134,9 @@ def check_two_pair(card):
     return 0
 
 def check_pair(card):
+    """This function checks if there is exactly one pair. e.g. 44789.
+    :type card: list of str
+    :rtype: float"""
     score = 200
     if len(set(card)) == 6:
         for i in card:
@@ -110,6 +149,9 @@ def check_pair(card):
     return 0
 
 def check_high_card(card):
+    """This function checks for the highest card in a players' cards.
+    :type card: list of str
+    :rtype: float"""
     score = 100
     card.sort(reverse=True)
     for i in range(5):
@@ -118,6 +160,11 @@ def check_high_card(card):
     return score
 
 def check_straight_flush(card, suites):
+    """This function checks if there is a straight flush in a players' hand.
+    : e.g. 4H 5H 6H 7H 8H 9H (H --> Hearts)
+    :This function runs the check flush and check straight back to back.
+    :type card: list of str
+    :rtype: float"""
     if check_flush(card, suites) != 0:
         score, cards = check_flush(card, suites)
         if score > 0:
@@ -128,6 +175,13 @@ def check_straight_flush(card, suites):
     return 0
 
 def score_cards(cards1, cards2):
+    """The input to this function are the two players' hands. The function goes
+    : sequentially to find out the best hand a player has. First the function 
+    : calls the check_straight_flush function and if it returns 0, the four_of_a_kind 
+    :function is called and so on. 
+    Returns the higest score a players' card gets.
+    :rtype: int, int, float, float
+    """
     card1, card2 = [], []
     suites1, suites2 = [], []
     for i in cards1: 
