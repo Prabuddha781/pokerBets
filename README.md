@@ -24,8 +24,8 @@ After the river, the cards are shown and the result is displayed.
 Challenge 1: Brute Forcing efficiently to calculate pre-flop odds. Or maybe there is a non-brute force way you could think of. I have used a hack for preFlop
 odds which is almost similar to what this guy/girl here wrote --> link (https://www.cardplayer.com/poker-tools/odds-and-outs#:~:text=Odds%20of%20two,73.3%25%20vs.%2026.7%25)
 
-Challenges:
-- Can you write more efficient ways to check the rank of the cards? I used an algorithm that scores the cards. Maybe there is something different.
-- How would you organize the main gui class if you wrote it from the scratch? I crammed everything under a single class and the instances are quite packed imo.
+Other challenges:
+- Can you write more efficient ways to check the rank of the cards? I used an algorithm that scores the cards. Maybe there is a better technique.
+- How would you organize the main gui class if you wrote it from the scratch? I crammed everything under a single class and the instances are quite packed.
 
 Let me know how the design of the program is. It is simple and beautiful in my opinion.
