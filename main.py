@@ -285,7 +285,7 @@ class Play():
         if len(self.hole_cards) == 2:
             for i in range(2):
                 for j in range(2):
-                    self.player_cards[i][j] = ImageTk.PhotoImage(Image.open(photo_dict[self.hole_cards[i][j]]))
+                    self.player_cards[i][j] = ImageTk.PhotoImage(Image.open(resource_path(photo_dict[self.hole_cards[i][j]])))
         self.p1_card1 = tk.Label(main_window, image=self.player_cards[0][0])
         self.p1_card1.grid(row=3, column=2)
         self.p1_card2 = tk.Label(main_window, image=self.player_cards[0][1])
@@ -311,7 +311,7 @@ class Play():
     def add_post_flop_photos(self):
         """This function displays the cards that have been displayed on the table."""
         for i in range(len(cards_on_table)):
-            self.images[i] = ImageTk.PhotoImage(Image.open(photo_dict[cards_on_table[i]]))
+            self.images[i] = ImageTk.PhotoImage(Image.open(resource_path(photo_dict[cards_on_table[i]])))
         self.card1 = tk.Label(main_window, image=self.images[0])
         self.card1.grid(row=1, column=4)
         self.card2 = tk.Label(main_window, image=self.images[1])
