@@ -29,7 +29,7 @@ Other challenges:
 - How would you organize the main gui class if you wrote it from the scratch? I crammed everything under a single class and the instances are quite packed.
 
 Let me know how the design of the program is. It is simple and beautiful in my opinion.
-
+Open the screenshots below in a new tab for better visibility.
 ![image](https://user-images.githubusercontent.com/74695186/143719563-f541a481-e75d-408a-9d3b-ebefd35dcc42.png)
 ![image](https://user-images.githubusercontent.com/74695186/143719561-dcc52440-a504-4401-af42-7a3f2d55a799.png)
 ![image](https://user-images.githubusercontent.com/74695186/143719560-fbfa80be-6c96-472b-b7d0-02d7209425f0.png)
